@@ -1,26 +1,33 @@
-function saveAwsConfig(data, callback) {
+import { DataProfilesSplitter } from './lib/data_profiles_splitter.js'
+import { loadAwsConfig } from './lib/load_aws_config.js'
+import { LZString } from './lib/lz-string.min.js'
+import { LocalStorageRepository, SyncStorageRepository } from './lib/storage_repository.js'
+
+const syncStorageRepo = new SyncStorageRepository(chrome || browser)
+
+function saveAwsConfig(data, callback, storageRepo) {
   const rawstr = data;
 
   try {
     const profiles = loadAwsConfig(rawstr);
-    if (profiles.length > 200) {
+    if (profiles.length > 2000) {
       callback({
         result: 'failure',
         error: {
-          message: 'The number of profiles exceeded maximum 200.'
+          message: 'The number of profiles exceeded maximum 2000.'
         }
       });
       return;
     }
 
-    const dps = new DataProfilesSplitter();
+    const dps = new DataProfilesSplitter(400);
     const dataSet = dps.profilesToDataSet(profiles);
     dataSet.lztext = LZString.compressToUTF16(rawstr);
 
-    chrome.storage.sync.set(dataSet,
-      function() {
-        callback({ result: 'success' });
-      });
+    storageRepo.set(dataSet)
+    .then(() => {
+      callback({ result: 'success' });
+    });
   } catch (e) {
     callback({
       result: 'failure',
@@ -30,6 +37,12 @@ function saveAwsConfig(data, callback) {
     });
   }
 }
+
+function initScript() {
+  localStorage.setItem('switchCount', 0);
+}
+
+chrome.runtime.onStartup.addListener(function () { initScript() })
 
 chrome.runtime.onInstalled.addListener(function (details) {
   const { reason } = details;
@@ -41,6 +54,8 @@ chrome.runtime.onInstalled.addListener(function (details) {
     const url = chrome.extension.getURL(page)
     chrome.tabs.create({ url }, function(){});
   }
+
+  initScript();
 })
 
 chrome.runtime.onMessageExternal.addListener(function (message, sender, sendResponse) {
@@ -63,10 +78,17 @@ chrome.runtime.onMessageExternal.addListener(function (message, sender, sendResp
     return;
   }
 
-  chrome.storage.sync.get(['configSenderId'], function(settings) {
+  syncStorageRepo.get(['configSenderId', 'configStorageArea'])
+  .then(settings => {
+    const configStorageArea = settings.configStorageArea || 'sync';
     const configSenderIds = (settings.configSenderId || '').split(',');
+
     if (configSenderIds.includes(sender.id)) {
-      saveAwsConfig(data, sendResponse)
+      if (configStorageArea === 'sync') {
+        // forcibly change
+        syncStorageRepo.set({ configStorageArea: 'local' }).then(() => {})
+      }
+      saveAwsConfig(data, sendResponse, new LocalStorageRepository(chrome || browser));
     } else {
       setTimeout(() => {
         sendResponse({

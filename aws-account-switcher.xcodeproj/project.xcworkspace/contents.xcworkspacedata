@@ -2,6 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "self:/Users/raulcinza/Documents/xcodeProjects/AWS Extend Switch Roles/aws-account-switcher.xcodeproj">
+      location = "absolute:Users/aaron/git/General/aws-account-switcher-safari-extension/aws-account-switcher.xcodeproj">
    </FileRef>
 </Workspace>
