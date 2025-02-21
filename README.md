@@ -1,6 +1,7 @@
 # AWS Account Switcher - Extension for Safari
 
 This extension for Safari is a port of the work done by tilfin in https://github.com/tilfin/aws-extend-switch-roles
+Original work on Safari extension is thanks to rmatec in https://github.com/rmatec/aws-account-switcher-safari-extension and now maintained by Aaron Parker.
 
 ## Documentation
 
@@ -24,4 +25,4 @@ The versioning might change in the future if this project drifts enough from the
 
 ## Donation
 
-If you would like to support me and the costs associated with publishing the extension in the App Store you can do so here https://ko-fi.com/rmatec 
+If you would like to support me and the costs associated with publishing the extension in the App Store you can do so here (currently not available)

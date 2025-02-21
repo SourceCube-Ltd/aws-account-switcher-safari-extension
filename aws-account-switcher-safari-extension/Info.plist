@@ -32,6 +32,6 @@
 		<string>$(PRODUCT_MODULE_NAME).SafariWebExtensionHandler</string>
 	</dict>
 	<key>NSHumanReadableCopyright</key>
-	<string>2020 Raúl Maté Cinza</string>
+	<string>2021 SourceCube Ltd</string>
 </dict>
 </plist>
